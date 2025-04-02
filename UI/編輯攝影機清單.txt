@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>編輯攝影機清單</title>
+    <style>
+        body {
+            font-family: Arial, "Microsoft JhengHei", sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            border: 2px solid #333;
+            padding: 20px;
+            width: 800px;
+            box-sizing: border-box;
+        }
+        
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .selection-panel {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .camera-list-panel, .selected-cameras-panel {
+            border: 1px solid #333;
+            width: 45%;
+            padding: 10px;
+        }
+        
+        h3 {
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        
+        .camera-item {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .camera-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .camera-item.selected {
+            background-color: #e0e0e0;
+        }
+        
+        .arrows-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .arrow-button {
+            margin: 10px;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            background-color: #337ab7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .arrow-button:hover {
+            background-color: #286090;
+        }
+        
+        .action-buttons {
+            text-align: right;
+        }
+        
+        .action-button {
+            padding: 8px 16px;
+            margin-left: 10px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .action-button:hover {
+            background-color: #e7e7e7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>編輯攝影機清單</h2>
+        
+        <div class="selection-panel">
+            <div class="camera-list-panel">
+                <h3>攝影機清單</h3>
+                <div id="camera-list">
+                    <!-- 攝影機清單會在這裡透過JavaScript動態生成 -->
+                </div>
+            </div>
+            
+            <div class="arrows-panel">
+                <button class="arrow-button" id="add-button">→</button>
+                <button class="arrow-button" id="remove-button">←</button>
+            </div>
+            
+            <div class="selected-cameras-panel">
+                <h3>已選攝影機</h3>
+                <div id="selected-cameras">
+                    <!-- 已選擇的攝影機會在這裡動態顯示 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-button" id="reset-button">重置</button>
+            <button class="action-button" id="confirm-button">確認</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 假設這是從 cam_list.cgi 獲取的資料
+            const camerasData = [
+                { id: 'cam01', name: '前門攝影機' },
+                { id: 'cam02', name: '後門攝影機' },
+                { id: 'cam03', name: '大廳攝影機' },
+                { id: 'cam04', name: '停車場攝影機 A' },
+                { id: 'cam05', name: '停車場攝影機 B' },
+                { id: 'cam06', name: '辦公室攝影機' },
+                { id: 'cam07', name: '倉庫攝影機' },
+                { id: 'cam08', name: '樓梯間攝影機' },
+                { id: 'cam09', name: '電梯攝影機' },
+                { id: 'cam10', name: '戶外攝影機' }
+            ];
+            
+            // 儲存已選擇的攝影機 ID
+            const selectedCameras = new Set();
+            
+            // 產生攝影機清單
+            function renderCameraList() {
+                const $cameraList = $('#camera-list');
+                $cameraList.empty();
+                
+                camerasData.forEach(camera => {
+                    const $item = $('<div>')
+                        .addClass('camera-item')
+                        .attr('data-id', camera.id)
+                        .text(camera.name);
+                    
+                    if (selectedCameras.has(camera.id)) {
+                        $item.addClass('selected');
+                    }
+                    
+                    $cameraList.append($item);
+                });
+            }
+            
+            // 產生已選擇的攝影機清單
+            function renderSelectedCameras() {
+                const $selectedList = $('#selected-cameras');
+                $selectedList.empty();
+                
+                camerasData.forEach(camera => {
+                    if (selectedCameras.has(camera.id)) {
+                        const $item = $('<div>')
+                            .addClass('camera-item')
+                            .attr('data-id', camera.id)
+                            .text(camera.name);
+                        
+                        $selectedList.append($item);
+                    }
+                });
+            }
+            
+            // 初始化顯示
+            renderCameraList();
+            renderSelectedCameras();
+            
+            // 點擊攝影機清單中的項目
+            $('#camera-list').on('click', '.camera-item', function() {
+                const cameraId = $(this).data('id');
+                
+                // 切換選擇狀態
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                    selectedCameras.delete(cameraId);
+                } else {
+                    $(this).addClass('selected');
+                    selectedCameras.add(cameraId);
+                }
+                
+                renderSelectedCameras();
+            });
+            
+            // 點擊已選攝影機清單中的項目
+            $('#selected-cameras').on('click', '.camera-item', function() {
+                const cameraId = $(this).data('id');
+                selectedCameras.delete(cameraId);
+                
+                // 更新兩個清單
+                renderCameraList();
+                renderSelectedCameras();
+            });
+            
+            // 添加按鈕
+            $('#add-button').click(function() {
+                $('#camera-list .camera-item:not(.selected)').each(function() {
+                    const cameraId = $(this).data('id');
+                    selectedCameras.add(cameraId);
+                    $(this).addClass('selected');
+                });
+                
+                renderSelectedCameras();
+            });
+            
+            // 移除按鈕
+            $('#remove-button').click(function() {
+                selectedCameras.clear();
+                
+                // 更新兩個清單
+                renderCameraList();
+                renderSelectedCameras();
+            });
+            
+            // 重置按鈕
+            $('#reset-button').click(function() {
+                selectedCameras.clear();
+                
+                // 更新兩個清單
+                renderCameraList();
+                renderSelectedCameras();
+            });
+            
+            // 確認按鈕
+            $('#confirm-button').click(function() {
+                // 在這裡可以處理確認操作，例如將選擇發送到伺服器
+                alert('已選擇了 ' + selectedCameras.size + ' 個攝影機');
+                console.log('Selected cameras:', Array.from(selectedCameras));
+            });
+        });
+    </script>
+</body>
+</html>

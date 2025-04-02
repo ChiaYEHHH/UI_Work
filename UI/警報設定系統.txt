@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>警報設定系統</title>
+    <style>
+        body {
+            font-family: Arial, "Microsoft JhengHei", sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .modal {
+            border: 2px solid #333;
+            padding: 20px;
+            width: 400px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: absolute;
+        }
+        
+        #alarm-settings-modal {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        #apply-to-modal {
+            top: 50%;
+            left: 20%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            width: 100px;
+            padding: 5px;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        
+        .camera-list {
+            border: 1px solid #333;
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 200px;
+        }
+        
+        .camera-item {
+            margin-bottom: 10px;
+        }
+        
+        .button-group {
+            text-align: right;
+            margin-top: 20px;
+        }
+        
+        .button {
+            padding: 5px 15px;
+            margin-left: 10px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        
+        .button:hover {
+            background-color: #e7e7e7;
+        }
+        
+        .dots {
+            text-align: center;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 警報設定模態框 -->
+    <div id="alarm-settings-modal" class="modal">
+        <h2>警報設定</h2>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="object-detection">
+            <label for="object-detection">物件偵測</label>
+        </div>
+        
+        <div class="form-group">
+            <label for="pause-time">停留時間</label>
+            <input type="text" id="pause-time">
+            <span>秒</span>
+        </div>
+        
+        <div class="checkbox-group">
+            <input type="checkbox" id="people-counting">
+            <label for="people-counting">人流計算</label>
+        </div>
+        
+        <div class="button-group">
+            <button id="apply-to-button" class="button">套用至</button>
+            <button id="reset-button" class="button">重置</button>
+            <button id="confirm-button" class="button">確認</button>
+        </div>
+    </div>
+    
+    <!-- 套用至模態框 (初始隱藏) -->
+    <div id="apply-to-modal" class="modal">
+        <h2>套用至</h2>
+        
+        <div class="camera-list">
+            <h3>攝影機清單</h3>
+            <div class="camera-item">
+                <input type="checkbox" id="camera1">
+                <label for="camera1">錄影主機1</label>
+            </div>
+            <div class="camera-item">
+                <input type="checkbox" id="camera2">
+                <label for="camera2">攝影機1</label>
+            </div>
+            <div class="camera-item">
+                <input type="checkbox" id="camera3">
+                <label for="camera3">攝影機2</label>
+            </div>
+            <div class="dots">.</div>
+            <div class="dots">.</div>
+            <div class="dots">.</div>
+        </div>
+        
+        <div class="button-group">
+            <button id="apply-reset-button" class="button">重置</button>
+            <button id="apply-confirm-button" class="button">確認</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 初始顯示警報設定模態框
+            $('#alarm-settings-modal').show();
+            
+            // 套用至按鈕點擊事件
+            $('#apply-to-button').click(function() {
+                // 不隱藏警報設定模態框，同時顯示套用至模態框
+                $('#apply-to-modal').show();
+            });
+            
+            // 套用至模態框的確認按鈕點擊事件
+            $('#apply-confirm-button').click(function() {
+                // 隱藏套用至模態框
+                $('#apply-to-modal').hide();
+                
+                // 獲取選中的攝影機
+                const selectedCameras = [];
+                $('.camera-item input[type="checkbox"]:checked').each(function() {
+                    selectedCameras.push($(this).next('label').text());
+                });
+                
+                // 可以在這裡處理選擇的攝影機，例如輸出到控制台
+                console.log('選定的攝影機:', selectedCameras);
+                
+                // 提示用戶
+                if (selectedCameras.length > 0) {
+                    alert('已成功套用設定至 ' + selectedCameras.length + ' 個攝影機');
+                }
+            });
+            
+            // 警報設定模態框的重置按鈕點擊事件
+            $('#reset-button').click(function() {
+                // 重置所有選項
+                $('#object-detection').prop('checked', false);
+                $('#people-counting').prop('checked', false);
+                $('#pause-time').val('');
+            });
+            
+            // 套用至模態框的重置按鈕點擊事件
+            $('#apply-reset-button').click(function() {
+                // 取消選中所有攝影機
+                $('.camera-item input[type="checkbox"]').prop('checked', false);
+            });
+            
+            // 警報設定模態框的確認按鈕點擊事件
+            $('#confirm-button').click(function() {
+                // 獲取設定
+                const objectDetection = $('#object-detection').is(':checked');
+                const peopleCount = $('#people-counting').is(':checked');
+                const pauseTime = $('#pause-time').val();
+                
+                // 可以在這裡處理警報設定，例如輸出到控制台
+                console.log('警報設定:', {
+                    '物件偵測': objectDetection,
+                    '人流計算': peopleCount,
+                    '停留時間': pauseTime + ' 秒'
+                });
+                
+                // 提示用戶
+                alert('警報設定已保存');
+            });
+        });
+    </script>
+</body>
+</html>
