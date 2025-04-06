@@ -79,9 +79,9 @@
             background-color: #f0f0f0;
         }
         
-        .camera-item.selected {
+        /* .camera-item.selected {
             background-color:rgb(33, 29, 241);
-        }
+        } */
         
         .arrows-panel {
             display: flex;

@@ -36,12 +36,12 @@
         .table-header {
             background-color: #f8f9fa;
         }
-        .table-container {
+        /* .table-container {
             display: none;
         }
         .table-container.active {
             display: block;
-        }
+        } */
         .btn-sm {
             padding: 0.25rem 0.5rem;
             font-size: 0.75rem;
@@ -114,6 +114,11 @@
         .action-button:hover {
             background-color: #e7e7e7;
         }
+
+        .list-header {
+            position: sticky;
+            top: 0;
+        }
     </style>
 </head>
 <body>
@@ -126,8 +131,8 @@
             <!-- 主要內容 -->
             <div class="col col-10">
                 <!-- 攝影機設定表格 -->
-                <div class="table-container" id="camTable">
-                    <div class="d-flex  flex-column mb-3">
+                <div class="table-container border p-3" id="camTable">
+                    <div class="d-flex flex-column mb-3">
                         <h5>攝影機設定</h5>
                         <button class="btn btn-md btn-primary" id="addCamBtn" style="width:100px;">新增</button>
                     </div>
@@ -181,9 +186,9 @@
                 </div>
                 <div class="model-body">
                     <div class="selection-panel my-4 d-flex justify-content-between" style="height:50vh;">
-                        <div class="camera-list-panel h-100">
-                            <h6>攝影機清單</h6>
-                            <div id="camera-list" class="overflow-auto">
+                        <div class="camera-list-panel h-100 d-flex flex-column ">
+                            <h6 class="bg-white py-2">攝影機清單</h6>
+                            <div id="camera-list" class="overflow-auto d-flex flex-column gap-2 flex-grow-1">
                             </div>
                         </div>
                         <div class="arrows-panel">
@@ -290,7 +295,8 @@
                 { id: 'cam07', name: 'GGG' },
                 { id: 'cam08', name: 'HHH' },
                 { id: 'cam09', name: 'III' },
-                { id: 'cam10', name: 'JJJ' }
+                { id: 'cam10', name: 'JJJ' },
+                { id: 'cam11', name: 'KKK' }
             ];
 
             renderCameraList(camerasData);
