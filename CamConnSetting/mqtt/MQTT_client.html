@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+</head>
+<body>
+<div></div>
+<script src="jquery.min.js"></script> 
+<script src="mqtt.min.js"></script>
+CommandID: <span id="CommandID" style="color: red;"></span><br/>
+MQTT Server: <input type="textbox" value="192.168.30.194" id="ip"><br/>
+MQTT Port: <input type="textbox" value="1884" id="port"><br/>
+Subscribe: <input type="textbox" value="Web/Server/Response" id="Subscribe"><button onclick="Subscribe();">訂閱</button><br/><br/>
+Topic:<input type="text" id="Topic" value="AI/Server/Connected"><br/>
+Message:<input type="text" id="JSON" size="100" value='{"CommandID":31}'>
+<button onclick="Send();">Send</button><br/><br/>
+
+<div id="Result" style="height:300px;border: 1px solid black;overflow-y: auto;"></div>
+
+<script language="javascript" type="text/javascript"> 
+    let CommandID = $.now();
+	let MQTTClient = mqtt.connect("ws://" + $("#ip").val() + ":" + $("#port").val());
+
+    $("#CommandID").text(CommandID);
+    $("#JSON").val('{"CommandID":' + CommandID + '}');
+
+    MQTTClient.on('connect', function () {
+        console.log('MQTT Connection OK');
+        Subscribe();
+    });
+
+    MQTTClient.on('reconnect', function () {
+        console.log('MQTT Reconnecting...');
+    });
+
+    MQTTClient.on('close', function () {
+        console.log('MQTT Disconnected');
+    })
+
+    MQTTClient.on('error', function (error) {
+        console.log('MQTT error', error);
+    })
+
+    MQTTClient.on("message", function (topic, payload, packet) {
+        let msg = JSON.parse(payload.toString());
+
+        // 不是自己則跳過
+        if(msg.CommandID != CommandID){
+            return;
+        }
+
+        switch(topic){
+            case "Web/Server/Response": // AIToWeb001
+                $("#Result").append("<div>" + topic + ": " + payload + "</div>");
+                break;
+            case "Web/Camera/Response": // AIToWeb002
+                $("#Result").append("<div>" + topic + ": " + payload + "</div>");
+                break;
+            case "Web/Alarm/Response": // AIToWeb003
+                $("#Result").append("<div>" + topic + ": " + payload + "</div>");
+                break;
+            case "Web/Update/Response": // AIToWeb004
+                $("#Result").append("<div>" + topic + ": " + payload + "</div>");
+                break;
+        }
+    });
+
+    function Subscribe(){
+        MQTTClient.subscribe($("#Subscribe").val());
+    }
+
+    function Send(){
+    	MQTTClient.publish($("#Topic").val(), $("#JSON").val());
+    }
+</script>
+</body>
+</html>
